@@ -1,0 +1,83 @@
+
+html,body{
+    height: 100%;
+    width: 100%;
+	overflow: hidden;
+}
+.app {
+	overflow: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+.app-view {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	position: absolute;
+	left: 0;
+	top: 0;
+	overflow: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	margin-bottom: 1px;
+	width: 100%;
+	height: 100%;
+}
+/*.app-view-box {
+	position: relative;
+	overflow: hidden;
+	height: 100%;
+}*/
+.app-view-content {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	overflow: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	-webkit-backface-visibility: hidden;
+	width: 100%;
+	height: 100%;
+	position: relative;
+	/*left: 0;
+	top: 0;*/
+}
+.app-view-footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 36px;
+	z-index: 1999;
+}
+.app-view-nav {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 36px;
+	z-index: 1999;
+}
+.no-overflow-scrolling .app {
+	overflow: hidden;
+}
+.no-overflow-scrolling .app-view {
+	overflow: hidden;
+}
+.no-overflow-scrolling .app-view-content {
+	height: auto;
+	overflow: hidden;
+}
+.app-mask {
+	display: none;
+	z-index: 0;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+}

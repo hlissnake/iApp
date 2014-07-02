@@ -1,0 +1,11 @@
+**\.sass-cache
+*.iml
+.idea
+.nodemonignore
+.package
+.tmp
+node_modules
+doc
+dev
+index.html.dump
+npm-debug.log
