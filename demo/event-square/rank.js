@@ -89,7 +89,7 @@ define(function (require, exports, module) {
 			if (me.hasClass('category-tab')) {
 				categoryList.toggleClass('show');
 			} else if (me.hasClass('first')) {
-				categoryList.removeClass('show');
+				categoryList[0].classList.remove('show');
 				if(CurrentType != 'all') {
 					renderContext(RanklistMap[ 'all' ]);
 					CurrentType = 'all';
@@ -97,7 +97,7 @@ define(function (require, exports, module) {
 			}
 			if ( !me.hasClass('current') ) {
 				tabItems.removeClass('current');
-				me.addClass('current');
+				me[0].classList.add('current');
 			}
 		})
 
@@ -108,7 +108,7 @@ define(function (require, exports, module) {
 			categoryItems.removeClass('selected');
 			$(this).addClass('selected');
 			categoryTab.text(type);
-			categoryList.removeClass('show');
+			categoryList[0].classList.remove('show');
 
 			CurrentType = type;
 

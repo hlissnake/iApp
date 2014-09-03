@@ -9,26 +9,28 @@ define(function(require, exports, module){
 
     var BodyHeight = document.body.getBoundingClientRect().height
     ,   MaxOpacity = 0.8
-    ,   MaxScale = 0.9
+    ,   MaxScale = 0.8
     ;
+
+    var NullEventCallback = function(){};
 
     var addIScroll = function(view){
         var el = '#' + view.id;
         if(IScroll) {
-            var iscroll = new IScroll(el);
-            setTimeout(function(){
-                iscroll.refresh();
-            }, 800);
+            var option = {};
+            if( $.os.version == '4.4.4' ) {
+                option['click'] = true;
+            }
+            var iscroll = new IScroll(el, option);
             view.iscroll = iscroll;
         } else {
             iscrollList[el] = view;
         }
     };
-
-    if('webkitOverflowScrolling' in document.body.style && $.os.ios ) {
+    // if ('webkitOverflowScrolling' in document.body.style && $.os.ios ) {
         NoOverflowScrolling = false;
-    }
-    if(NoOverflowScrolling) {
+    // }
+    if (NoOverflowScrolling) {
         document.body.classList.add('no-overflow-scrolling');
         NoOverflowScrolling = true;
         require.async('./util/iscroll', function(module){
@@ -40,7 +42,7 @@ define(function(require, exports, module){
         });
     }
 
-    var iApp = function(containerEl, options){
+    var iApp = function(containerEl, options){//alert('app init');
 
         for (var option in options) {
             if (options.hasOwnProperty(option)) 
@@ -177,6 +179,9 @@ define(function(require, exports, module){
             ;
             // add prime view container
             pageEl.append(viewEl);
+
+            // 在 -webkit-overflow-scrolling: touch 元素上需有绑定有touchstart事件，解决iOS7下一个Bug
+            viewEl.on('touchstart', NullEventCallback);
             // add footer bar if exists
             if (view.footBar || me.footBar) {
                 pageEl.append($('<div class="app-view-footer">' + (view.footBar || me.footBar) + '</div>'));
@@ -193,7 +198,7 @@ define(function(require, exports, module){
 
             } else if (view.html) {
                 viewEl.append($(view.html));
-                view.oninit.call(me);
+                view.oninit.call(me, view);
                 view.loaded = true;
             }
             // loadPromise.done(function(){
@@ -239,7 +244,7 @@ define(function(require, exports, module){
                     viewEl.style.webkitTransition = 'all 400ms ease';
                     // viewEl.style.webkitTransform = 'translateY(-' + moveHeight + 'px)';
                     viewEl.style.webkitTransform = 'translateY(0) translateZ(0)';
-                    view.onload && view.onload.call(me);
+                    view.onload && view.onload.call(me, view);
                     if(NoOverflowScrolling) {
                         setTimeout(function(){
                             view.iscroll.refresh();  
@@ -259,7 +264,7 @@ define(function(require, exports, module){
                 // ,   moveHeight = $(activeEl).height()
                 ,   isTransitionEnd = false
                 ;
-                function transitionEndCallback(e){
+                function transitionEndCallback(e){//alert('transitionEnd');
                     // me.el.height($(viewEl).height());
                     if (me.viewStack.length > 1 && !NoOverflowScrolling) {
                         me.dragEl = viewEl;
@@ -274,19 +279,13 @@ define(function(require, exports, module){
                         $(activeEl).hide();
                     } else {
                         $(activeEl).remove();
+                        $('.app-view-content', activeEl).off('touchstart', NullEventCallback);
                     }
                     isTransitionEnd = true;
                     activeEl.removeEventListener('webkitTransitionEnd', arguments.callee);
                     activeView = activeEl = null;
                 }
                 activeEl.addEventListener('webkitTransitionEnd', transitionEndCallback, false);
-
-                // 500ms后查看webkitTransitionEnd 是否已执行，如果被滚屏动作中断UI进程，则补充执行
-                // setTimeout(function(){
-                //     if (isTransitionEnd) return;
-                //     isTransitionEnd = null;
-                //     transitionEndCallback();
-                // }, 600);
 
                 me.currentZindex -= 2;
 
@@ -306,12 +305,18 @@ define(function(require, exports, module){
                 setTimeout(function(){
                     maskEl.style.webkitTransition = 'opacity 400ms ease';
                     maskEl.style.opacity = '0';
-                })
+                });
 
                 activeEl.style.webkitTransition = 'all 400ms ease';
                 activeEl.style.webkitTransform = 'translateY(' + BodyHeight + 'px) translateZ(0)';//0px)';
+                // 500ms后查看webkitTransitionEnd 是否已执行，已知少部分Android机器不支持 TransitionEnd事件，用setTimeout模拟兼容
+                setTimeout(function(){
+                    if (isTransitionEnd) return;
+                    isTransitionEnd = null;
+                    transitionEndCallback();
+                }, 400 + 50);
 
-                view.onload && view.onload.call(me);
+                view.onload && view.onload.call(me, view);
                 if(NoOverflowScrolling) {
                     setTimeout(function(){
                         view.iscroll.refresh();  
@@ -326,7 +331,7 @@ define(function(require, exports, module){
                 }
             }
 
-            activeView.onhide && activeView.onhide.call(me);
+            activeView.onhide && activeView.onhide.call(me, activeView);
             this.activeViewId = view.id;
         },
 
@@ -336,8 +341,8 @@ define(function(require, exports, module){
                     addIScroll(this.viewList[id]);
                 }
                 this.activeViewId = id;
-                this.viewList[id].oninit.call(this);
-                this.viewList[id].onload && this.viewList[id].onload.call(this);
+                this.viewList[id].oninit.call(this, this.viewList[id]);
+                this.viewList[id].onload && this.viewList[id].onload.call(this, this.viewList[id]);
             } else {
                 this.load(id, true);
             }

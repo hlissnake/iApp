@@ -40,7 +40,7 @@
 * options.navBar : App 顶部导航html；
 
 * options.footBar : App 底部通栏html；
-* 
+
 * options.backBtnCls : App 中带后退功能按钮的指定Class
 
 
